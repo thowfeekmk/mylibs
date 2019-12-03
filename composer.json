@@ -2,6 +2,7 @@
     "require": {
         "monolog/monolog": "1.0.*",
         "guzzlehttp/guzzle": "^6.4",
-        "nesbot/carbon": "^1.39"
+        "nesbot/carbon": "^1.39",
+        "ramsey/uuid": "^3.9"
     }
 }
