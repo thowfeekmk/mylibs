@@ -12,7 +12,7 @@ use Ramsey\Uuid\Uuid as Uuid;
 class Address
 {
 
-    private static $API_KEY = "AIzaSyBWPN0N2w9zP8uLDbi-HDO-vR3jjtG9E7g";
+    private static $API_KEY = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
     private static $GOOGLE_URL = "https://maps.googleapis.com/maps/api";
     private static $conn;
     private static $MAX_RESULTS = 5;
