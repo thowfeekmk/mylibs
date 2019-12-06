@@ -4,37 +4,33 @@ namespace GoogleApi;
 
 require_once '../vendor/autoload.php';
 
+
 use GuzzleHttp\Client as Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Ramsey\Uuid\Uuid as Uuid;
 
-
 class Address
 {
 
-    private static $API_KEY = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+    private static $API_KEY = "AIzaSyBngiPtITLXJ7wuvcqWpcfepxU7BixRSBk";
     private static $GOOGLE_URL = "https://maps.googleapis.com/maps/api";
     private static $conn;
     private static $MAX_RESULTS = 5;
     public $GEOCODE = false;
     private static $client;
-    private static $country = "au";
+    private static $country = "lk";
 
     public function __construct()
     {
         self::$client = new Client();
     }
 
-    private static function get($request, $data = [])
+    private static function get($request, $params = [])
     {
         try {
-            $url = self::$GOOGLE_URL . "&key=" .  self::$API_KEY;
-            $res = self::$client->request('GET', $url, [
-                'timeout' => 60,
-                'headers' => ['Content-Type' => 'application/json'],
-                'query' => $data
-            ]);
-            return json_decode($res->getBody(), true);
+            $url = self::$GOOGLE_URL . $request . "&components=country:" . self::$country . "&key=" .  self::$API_KEY;
+            $res = self::$client->request('GET', $url, ['headers' => ['Accept'  => 'application/json']]);
+            return ($res->getBody()) ? $res->getBody()->getContents() : [];
         } catch (GuzzleException $ex) {
             return ['success' => false, 'message' => "Excetion:" . $ex->getMessage()];
         }
@@ -50,8 +46,9 @@ class Address
         if ($token === "") {
             $token = $this->generateToken();
         }
-        $request = self::$GOOGLE_URL . "/place/details/json?&placeid=" . $address_id . "&sessiontoken=" . $token . $fields;
+        $request = "/place/details/json?&placeid=" . $address_id . "&sessiontoken=" . $token . $fields;
         $results = json_decode(self::get($request));
+
         if (!empty($results->result)) {
             foreach ($results->result->address_components as $comp) {
                 if (in_array('floor', $comp->types)) {
@@ -63,11 +60,17 @@ class Address
                 if (in_array('street_number', $comp->types)) {
                     $parts['Number'] = strtoupper($comp->short_name);
                 }
+                if (in_array('sublocality_level_1', $comp->types)) {
+                    $parts['City'] = strtoupper($comp->long_name);
+                }
                 if (in_array('locality', $comp->types)) {
                     $parts['Suburb'] = strtoupper($comp->long_name);
                 }
                 if (in_array('administrative_area_level_1', $comp->types)) {
                     $parts['State'] = strtoupper($comp->short_name);
+                }
+                if (in_array('administrative_area_level_2', $comp->types)) {
+                    $parts['District'] = strtoupper($comp->short_name);
                 }
                 if (in_array('postal_code', $comp->types)) {
                     $parts['Postcode'] = $comp->short_name;
@@ -93,8 +96,10 @@ class Address
         if ($token === "") {
             $token = $this->generateToken();
         }
-        $request = "/place/autocomplete/json?input=" . urlencode($term) . "&sessiontoken=" . $token . "&components=country:" . self::$country . "&types=address";
-        $results = json_decode(self::$conn->get($request));
+
+        $request = "/place/autocomplete/json?input=" . urlencode($term) . "&sessiontoken=" . $token . "&types=address";
+        $results = json_decode(self::get($request));
+
         if ($results) {
             foreach ($results->predictions as $result) {
                 $matches[] = ['id' => $result->place_id, 'address' => $result->description];

@@ -20,7 +20,8 @@ use GoogleApi\Address;
                 <th colspan="2">Google PHP API</th>
             </tr>
             <tr>
-                <td colspan="2"><input id="address_input2" value="" placeholder="Enter a location" class="form-control" /> </td>
+                <td>Address</td>
+                <td><input id="address_input" value="" placeholder="Enter a location" class="form-control" /> </td>
             </tr>
             <tr>
                 <td>Level Type</td>
@@ -58,7 +59,7 @@ use GoogleApi\Address;
     $(document).ready(function() {
         var cache = {};
         var token = "";
-        $("#address_input2").autocomplete({
+        $("#address_input").autocomplete({
             minLength: 1,
             source: function(request, process) {
                 //resetAddressParts();
@@ -76,12 +77,12 @@ use GoogleApi\Address;
                 });
             },
             select: function(e, data) {
-                setAddressParts2(data.item.id, data.item.value);
+                setAddressParts(data.item.id, data.item.value);
             }
         });
 
-        function setAddressParts2(id, address) {
-            $.getJSON("google_address_ajx2.php", {
+        function setAddressParts(id, address) {
+            $.getJSON("google_address_ajx.php", {
                 action: 'select',
                 term: address,
                 id: id,
